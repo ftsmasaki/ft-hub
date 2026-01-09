@@ -1,0 +1,50 @@
+# EAS Buildで除外するファイル・ディレクトリ
+
+# Kiri MCP関連（ソケットファイルなど）
+.kiri
+.kiri/
+**/.kiri
+**/.kiri/
+**/.kiri/**
+.kiri/**
+*.sock
+**/*.sock
+**/*.duckdb.sock
+
+# 開発ツール関連
+.cursor/
+.vscode/
+.idea/
+
+# 一時ファイル
+*.log
+*.tmp
+*.sock
+
+# テスト関連
+coverage/
+.nyc_output/
+
+# ビルド成果物
+dist/
+build/
+.expo/
+web-build/
+
+# 依存関係（EASが自動的にインストールするため）
+node_modules/
+
+# 環境変数ファイル
+.env*.local
+.env
+
+# OS固有ファイル
+.DS_Store
+Thumbs.db
+
+# Git関連
+.git/
+.gitignore
+
+# ドキュメント（必要に応じて）
+docs/

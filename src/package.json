@@ -8,7 +8,8 @@
     "start:localhost": "expo start --localhost",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build:ios": "npx eas-cli build --profile development --platform ios"
   },
   "dependencies": {
     "expo": "~54.0.31",

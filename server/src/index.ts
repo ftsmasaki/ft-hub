@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
+import hello from './routes/hello';
 
 const app = new Hono();
 
-app.get('/', (c) => {
-  return c.text('Hello World');
-});
+// ルートを登録
+app.route('/', hello);
 
 const port = process.env.PORT || 3000;
 

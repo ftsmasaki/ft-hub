@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   useAudioRecorder,
   useAudioRecorderState,
@@ -7,8 +7,10 @@ import {
   setAudioModeAsync,
 } from 'expo-audio';
 import * as FileSystem from 'expo-file-system/legacy';
+import SoundLevel from 'react-native-sound-level';
 import { RecordingState, MAX_RECORDING_DURATION } from '../../domain/services/audio-recorder';
 import { AudioChunk } from '../../domain/entities/audio-chunk';
+import { useSoundLevel } from '../../application/hooks/use-sound-level';
 
 /**
  * 録音機能のカスタムフック
@@ -19,7 +21,6 @@ export const useRecording = () => {
     duration: 0,
     maxDuration: MAX_RECORDING_DURATION,
   });
-  const [volumeLevel, setVolumeLevel] = useState(0);
   const startTimeRef = useRef<number>(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const chunkIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -27,10 +28,17 @@ export const useRecording = () => {
   // expo-audioのフックを使用
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY, () => {
     // ステータス更新時のコールバック
-    // 音量レベルは別途取得する必要があります
   });
 
   const recorderState = useAudioRecorderState(audioRecorder);
+
+  // 音量レベル監視フック（関数型アプローチ）
+  const soundLevelModule = useMemo(() => SoundLevel, []);
+  const { volumeLevel, start: startSoundLevel, stop: stopSoundLevel } = useSoundLevel({
+    soundLevelModule,
+    monitoringInterval: 100,
+    enabled: recorderState.isRecording,
+  });
 
   // 録音権限とオーディオモードの初期化
   useEffect(() => {
@@ -53,18 +61,25 @@ export const useRecording = () => {
 
   // 録音状態を同期
   useEffect(() => {
-    if (recorderState.isRecording) {
-      setVolumeLevel(0.5); // 仮の音量レベル（実際の実装では別の方法が必要）
-    } else {
-      setVolumeLevel(0);
-    }
-
     setRecordingState({
       isRecording: recorderState.isRecording,
       duration: recorderState.durationMillis || 0,
       maxDuration: MAX_RECORDING_DURATION,
     });
   }, [recorderState.isRecording, recorderState.durationMillis]);
+
+  // 録音開始時に音量レベル監視を開始、停止時に終了
+  useEffect(() => {
+    if (recorderState.isRecording) {
+      startSoundLevel().catch((error) => {
+        console.error('Failed to start sound level monitoring:', error);
+      });
+    } else {
+      stopSoundLevel().catch((error) => {
+        console.error('Failed to stop sound level monitoring:', error);
+      });
+    }
+  }, [recorderState.isRecording, startSoundLevel, stopSoundLevel]);
 
 
   // 録音開始
@@ -97,7 +112,7 @@ export const useRecording = () => {
     try {
       if (recorderState.isRecording) {
         await audioRecorder.stop();
-        setVolumeLevel(0);
+        // 音量レベル監視はuseEffectで自動的に停止される
       }
     } catch (error) {
       console.error('Failed to stop recording:', error);

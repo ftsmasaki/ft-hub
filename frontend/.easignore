@@ -1,0 +1,14 @@
+# EAS Buildでアップロードから除外するファイル・ディレクトリ
+
+# Kiri MCPツールのデータベースファイル
+.kiri/
+
+# その他の一時ファイル
+*.log
+*.tmp
+.cache/
+.temp/
+
+# 開発環境固有のファイル
+.env.local
+.env.*.local

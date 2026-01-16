@@ -1,6 +1,6 @@
 import { describe, test, expect, mock, beforeEach, afterEach } from 'bun:test';
 import type { AudioChunk } from '../../../../recording/domain/entities/audio-chunk';
-import type { TranscriptionChunk } from '../../../../domain/types/api-types';
+import type { TranscriptionChunk } from '../../../domain/types/api-types';
 import { createApiClient } from '../api-client';
 
 describe('createApiClient', () => {
